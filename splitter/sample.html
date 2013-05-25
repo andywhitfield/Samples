@@ -1,0 +1,48 @@
+<html>
+    <head>
+		<link href="jquery.splitter.css" rel="stylesheet"/>
+        <style type="text/css">
+		article {
+			position: absolute;
+			top: 35px;
+			left: 5px;
+			right: 5px;
+			bottom: 5px;
+			border: 1px solid #000;
+			overflow: hidden;
+		}
+		</style>
+        <script src="jquery-1.9.1.min.js"></script>
+        <script src="jquery.splitter-0.6.js"></script>
+        <script type="text/javascript">
+		$(function () {
+			$('#mainSplitter').split({ orientation: 'vertical', limit: 80, position: '150' });
+			$('#splitCenter').split({ orientation: 'horizontal', limit: 80, position: '300' });
+
+			$(window).resize(function () {
+				$('#mainSplitter').width($('article').width()).height($('article').height());
+				$('.spliter_panel').trigger('spliter.resize');
+			});
+			$(window).trigger('resize');
+		});
+        </script>
+    </head>
+    <body>
+        <header>Site Title</header>
+        <article>
+			<section id="mainSplitter">
+				<div id="splitWest">
+					Left-hand side navigation.
+				</div>
+				<div id="splitCenter">
+					<div id="splitNorth">
+						Right-side, top...here we will put the list of articles.
+					</div>
+					<div id="splitSouth">
+						Right-side, bottom...this will be the content of the selected article.
+					</div>
+				</div>
+			</section>
+        </article>
+    </body>
+</html>
