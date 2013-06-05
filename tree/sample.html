@@ -1,0 +1,28 @@
+<html>
+    <head>
+		<link href="aciTree.css" rel="stylesheet"/>
+        <script src="jquery-1.9.1.min.js"></script>
+        <script src="jquery.aciPlugin.js"></script>
+        <script src="jquery.aciTree.js"></script>
+		
+        <script type="text/javascript">
+		$(function () {
+			$('#feedTree').aciTree({
+				animateRoot: false,
+				rootData: [
+					{id: 'News', item: 'News', props: { isFolder: true, open: true }, items: [
+						{id: 101, item: 'BBC News', props: { isFolder: false } },
+						{id: 102, item: 'Sky News', props: { isFolder: false } }
+					] },
+					{id: 'Tech', item: 'Tech', props: { isFolder: true, open: false }, items: [
+						{id: 103, item: 'Hacker News', props: { isFolder: false } }
+					] }
+				]
+			});
+		});
+        </script>
+    </head>
+    <body>
+        <div id="feedTree" class="aciTree"></div>
+    </body>
+</html>
