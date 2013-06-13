@@ -1,0 +1,65 @@
+<html>
+    <head>
+		<link href="ui.jqgrid.css" rel="stylesheet"/>
+		<link href="jquery-ui-1.10.2.custom.css" rel="stylesheet"/>
+        <style type="text/css">
+			.unread-item { font-weight: bold; }
+		</style>
+        <script src="jquery-1.9.1.min.js"></script>
+        <script src="grid.locale-en.js"></script>
+        <script src="jquery.jqGrid.min.js"></script>
+        <script type="text/javascript">
+		$(function () {
+			$("#articleGrid").jqGrid({
+				datatype: "jsonstring",
+				datastr: "[" +
+				"{story: 101, heading: 'first', article: 'the article', posted: 'yesterday', read: 'false'}," +
+				"{story: 102, heading: 'second', article: 'the second article', posted: 'the day before', read: 'true'}," +
+				"]",
+				colNames: ['Story', 'Heading', 'Article', 'Posted', 'Read'],
+				colModel: [
+					{ name: 'story', index: 'story', hidden: true },
+					{ name: 'heading', index: 'heading', width: '35%', sortable: false },
+					{ name: 'article', index: 'article', width: '44%', sortable: false },
+					{ name: 'posted', index: 'posted', width: '21%', sortable: false },
+					{ name: 'read', index: 'read', hidden: true }
+				],
+				viewrecords: true,
+				height: 400,
+				width: 600,
+				forceFit: true,
+				rowNum: 1000,
+				onSelectRow: function (rowId, status, e) {
+					var storyId = $(this.rows[rowId].cells[0]).text();
+					// snip... load the full article for this storyId
+					
+					// mark this story 'read'
+					$.each($('#articleGrid').jqGrid('getRowData'), function (i, id) {
+						if (id.story == storyId) {
+							if (id.heading.length > 0 && id.heading[0] == '<') {
+								id.heading = $(id.heading).text();
+								id.article = $(id.article).text();
+								id.posted = $(id.posted).text();
+								$('#articleGrid').jqGrid('setRowData', i + 1, id);
+							}
+						}
+					});
+				},
+				loadComplete: function (result) {
+					$.each(this.rows, function (i, row) {
+						if ($(row.cells[4]).text() == 'false') {
+							$(row.cells[1]).wrapInner('<span class="unread-item" />');
+							$(row.cells[2]).wrapInner('<span class="unread-item" />');
+							$(row.cells[3]).wrapInner('<span class="unread-item" />');
+						}
+					});
+				}
+			});
+			$("#articleGrid").jqGrid('bindKeys');
+		});
+        </script>
+    </head>
+    <body>
+		<table id="articleGrid"></table>
+    </body>
+</html>
