@@ -1,0 +1,100 @@
+<html>
+    <head>
+        <style type="text/css">
+		#splitWest { border: 1px solid black; float: left; width: 175px; height: 100%; }
+		</style>
+        <script src="jquery-1.9.1.min.js"></script>
+        <script src="sammy-0.7.4.js"></script>
+        <script src="knockout-2.2.1.js"></script>
+        <script type="text/javascript">
+		function loadFeeds(model) {
+			model.feeds.removeAll();
+			model.loadingFeeds(true);
+			// ajax callback...let's pretend...
+			window.setTimeout(function () {
+				var randFeedCount = Math.floor(Math.random() * 6) - 1;
+				for (var i = 0; i < randFeedCount; i++) {
+					model.feeds.push({ id: i+1, title: 'Sample feed #'+(i+1), url: '#/feed/'+(i+1) });
+				}
+				model.loadingFeeds(false);
+			}, 1000);
+		}
+		
+		$(function () {
+			var PageModel = function () {
+				this.loadingFeeds = ko.observable(true);
+				this.feeds = ko.observableArray([]);
+				this.anyFeeds = ko.computed(function () { return this.feeds().length > 0; }, this);
+				this.selectedFeed = ko.observable("");
+				this.isFeedSelected = ko.computed(function () { return this.selectedFeed() != ""; }, this);
+				this.selectedArticle = ko.observable(0);
+				this.isArticleSelected = ko.computed(function () { return this.selectedArticle() != 0; }, this);
+				this.feedItems = ko.observableArray([]);
+				this.anyItemsInFeed = ko.computed(function () { return this.feedItems().length > 0; }, this);
+				this.articleBody = ko.computed(function() { return 'This is the body content for the selected article #'+this.selectedArticle() + ' which is part of feed #'+this.selectedFeed()+'.'; }, this);
+			}
+			var model = new PageModel();
+			
+			var app = $.sammy(function () {
+				this.get('#/', function () {
+					model.selectedFeed("");
+					model.selectedArticle(0);
+					loadFeeds(model);
+				});
+				this.get('#/feed/:feed', function() {
+					model.feedItems.removeAll();
+					var feedId = this.params['feed'];
+					var randItemCount = Math.floor(Math.random() * 10) - 1;
+					for (var i = 0; i < randItemCount; i++) {
+						model.feedItems.push({ id: i+1, title: 'Sample article #'+(i+1), url: '#/feed/'+feedId+'/'+(i+1) });
+					}
+					model.selectedFeed(feedId);
+					model.selectedArticle(0);
+				});
+				this.get('#/feed/:feed/:article', function() {
+					var feedId = this.params['feed'];
+					var articleId = this.params['article'];
+					model.selectedFeed(feedId);
+					model.selectedArticle(articleId);
+				});
+			});
+			
+			loadFeeds(model);
+			
+			app.run();
+			ko.applyBindings(model);
+		});
+        </script>
+    </head>
+    <body>
+		<a href="#/">Home</a>
+		<section>
+			<div id="splitWest">
+				<div data-bind="visible: loadingFeeds()">Loading your feeds...</div>
+				<div data-bind="visible: !loadingFeeds() && !anyFeeds()">You haven't subscribed to any feeds yet, <a href="javascript:window.location.reload();">add some...</a></div>
+				<div data-bind="visible: !loadingFeeds() && anyFeeds()">The aciTree populated from the server...
+				<ul data-bind="foreach: feeds">
+					<li><a href="#" data-bind="text: title, attr: { href: url }"></a></li>
+				</ul>
+				</div>
+			</div>
+			<div id="splitCenter">
+				<div id="splitNorth">
+					<div data-bind="visible: !isFeedSelected()">No feed selected.</div>
+					<div data-bind="visible: isFeedSelected() && !anyItemsInFeed()">
+					There are currently no articles in the selected feed.
+					</div>
+					<div data-bind="visible: isFeedSelected() && anyItemsInFeed()">
+						<div data-bind="foreach: feedItems">
+							<div><a href="#" data-bind="text: title, attr: { href: url }"></a></div>
+						</div>
+					</div>
+				</div>
+				<div id="splitSouth">
+					<div data-bind="visible: !isArticleSelected()">No article selected.</div>
+					<div data-bind="visible: isArticleSelected(), text: articleBody()"></div>
+				</div>
+			</div>
+		</section>
+    </body>
+</html>
